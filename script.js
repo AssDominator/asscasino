@@ -14,22 +14,26 @@ const collectionModal = document.getElementById('collectionModal');
 const buttCollectionList = document.getElementById('buttCollectionList');
 const vaultModal = document.getElementById('vaultModal');
 const closeButtons = document.querySelectorAll('.close-button');
+const vaultGameContainer = document.getElementById('vaultGameContainer');
 
 // --- Sonidos ---
 const spinSound = document.getElementById('spinSound');
 const winSound = document.getElementById('winSound');
 const loseSound = document.getElementById('loseSound');
 const assDestructionSound = document.getElementById('assDestructionSound');
+const backgroundMusic = document.getElementById('backgroundMusic');
 
 // --- Variables del Juego ---
-let assDollars = 1000;
-let buttCollection = {}; // Objeto para almacenar la colección de glúteos (nombre: cantidad)
+let assDollars = 10000;
+let buttCollection = {};
+let vaultAssDollars = 0;
+let vaultGamePlayedThisSession = false;
 
 const buttTypes = [
     { name: 'Glúteo Común', img: 'assets/butt_common.png', value: 50, rarity: 'common' },
     { name: 'Glúteo Raro', img: 'assets/butt_rare.png', value: 150, rarity: 'rare' },
     { name: 'Glúteo Legendario', img: 'assets/butt_legendary.png', value: 500, rarity: 'legendary' },
-    { name: 'Ass Destruction', img: 'assets/butt_destruction.png', value: -200, rarity: 'destruction' } // Valor negativo para pérdida
+    { name: 'Ass Destruction', img: 'assets/butt_destruction.png', value: -200, rarity: 'destruction' }
 ];
 
 const phrases = {
@@ -64,49 +68,44 @@ function updateDisplay() {
 
 function speak(message) {
     characterSpeech.textContent = message;
-    // Podrías añadir animaciones aquí para el Ass Dominator
 }
 
 function getRandomButtType() {
-    // Simula las probabilidades
     const rand = Math.random();
-    if (rand < 0.05) return buttTypes.find(b => b.rarity === 'destruction'); // 5% Ass Destruction
-    if (rand < 0.25) return buttTypes.find(b => b.rarity === 'legendary');  // 20% Glúteo Legendario (0.25 - 0.05)
-    if (rand < 0.65) return buttTypes.find(b => b.rarity === 'rare');       // 40% Glúteo Raro (0.65 - 0.25)
-    return buttTypes.find(b => b.rarity === 'common');                      // 35% Glúteo Común
+    if (rand < 0.05) return buttTypes.find(b => b.rarity === 'destruction');
+    if (rand < 0.25) return buttTypes.find(b => b.rarity === 'legendary');
+    if (rand < 0.65) return buttTypes.find(b => b.rarity === 'rare');
+    return buttTypes.find(b => b.rarity === 'common');
 }
 
 function spinReel(reelElement, resultButt) {
     return new Promise(resolve => {
-        // Reinicia la animación y asegura que la imagen de resultado no se muestre inicialmente
         reelElement.classList.remove('result');
-        reelElement.innerHTML = ''; // Limpia el contenido anterior
-
-        // Añade una imagen de un glúteo genérico o animado para el efecto de giro
+        reelElement.innerHTML = '';
         const spinningImage = document.createElement('img');
-        spinningImage.src = 'assets/butt_spinning.png'; // Una imagen de glúteo genérica o un icono de giro
+        spinningImage.src = 'assets/butt_spinning.png';
         spinningImage.alt = 'Girando...';
         reelElement.appendChild(spinningImage);
-        reelElement.classList.remove('stop'); // Asegura que la animación de giro esté activa
+        reelElement.classList.remove('stop');
 
-        spinSound.currentTime = 0; // Reinicia el sonido si ya está sonando
+        spinSound.currentTime = 0;
         spinSound.play();
 
         setTimeout(() => {
-            reelElement.classList.add('stop'); // Detiene la animación de giro
-            reelElement.innerHTML = ''; // Limpia la imagen de giro
+            reelElement.classList.add('stop');
+            reelElement.innerHTML = '';
             const resultImage = document.createElement('img');
             resultImage.src = resultButt.img;
             resultImage.alt = resultButt.name;
             reelElement.appendChild(resultImage);
-            reelElement.classList.add('result'); // Aplica la animación de mostrar resultado
+            reelElement.classList.add('result');
             resolve();
-        }, 1000 + Math.random() * 500); // Duración de giro aleatoria para cada reel
+        }, 1000 + Math.random() * 500);
     });
 }
 
 async function spin() {
-    if (assDollars < 100) { // Cuesta 100 AssDólares por giro
+    if (assDollars < 100) {
         messageDisplay.textContent = '¡No tienes suficientes AssDólares para girar!';
         speak('¡Pobre! ¡Necesitas más AssDólares para jugar!');
         return;
@@ -114,7 +113,7 @@ async function spin() {
 
     assDollars -= 100;
     updateDisplay();
-    spinButton.disabled = true; // Deshabilita el botón mientras giran los carretes
+    spinButton.disabled = true;
 
     messageDisplay.textContent = '¡Girando la rueda del destino de glúteos...!';
     speak('¡La rueda gira! ¡Siento la emoción!');
@@ -134,7 +133,6 @@ async function spin() {
 function processResult(results) {
     const [res1, res2, res3] = results;
 
-    // Verificar si los tres glúteos son iguales
     if (res1.name === res2.name && res2.name === res3.name) {
         if (res1.rarity === 'destruction') {
             handleAssDestruction();
@@ -161,12 +159,9 @@ function handleWin(buttWon) {
     winSound.play();
     messageDisplay.textContent = `¡GANASTE! ¡Obtuviste un ${buttWon.name} y ${assDollarsGained} AssDólares!`;
     speak(phrases.win[Math.floor(Math.random() * phrases.win.length)]);
-    characterSpeech.classList.add('animate-win');
-    setTimeout(() => characterSpeech.classList.remove('animate-win'), 1000); // Remover clase después de la animación
 }
 
 function handleLoss() {
-    // Si pierde, Ass Dominator roba un glúteo si el jugador tiene alguno
     let buttStolen = false;
     if (Object.keys(buttCollection).length > 0) {
         const buttNames = Object.keys(buttCollection);
@@ -189,23 +184,19 @@ function handleLoss() {
         messageDisplay.textContent = '¡PERDISTE! El Ass Dominator se burla de tu falta de glúteos.';
         speak('¡No tienes nada que robar, patético!');
     }
-    characterSpeech.classList.add('animate-lose');
-    setTimeout(() => characterSpeech.classList.remove('animate-lose'), 1000); // Remover clase después de la animación
 }
 
 function handleAssDestruction() {
-    assDollars = Math.max(0, assDollars - 500); // Pierde 500 AssDólares o se queda en 0
-    buttCollection = {}; // Pierde todos los glúteos
+    assDollars = Math.max(0, assDollars - 500);
+    buttCollection = {};
     updateDisplay();
     assDestructionSound.play();
     messageDisplay.textContent = '¡¡¡ASS DESTRUCTION!!! ¡Has perdido 500 AssDólares y toda tu colección de glúteos!';
     speak(phrases.assDestruction[Math.floor(Math.random() * phrases.assDestruction.length)]);
-    characterSpeech.classList.add('animate-destruction');
-    setTimeout(() => characterSpeech.classList.remove('animate-destruction'), 1000); // Remover clase después de la animación
 }
 
 function showCollection() {
-    buttCollectionList.innerHTML = ''; // Limpiar la lista
+    buttCollectionList.innerHTML = '';
     if (Object.keys(buttCollection).length === 0) {
         buttCollectionList.innerHTML = '<li>Aún no tienes glúteos en tu colección. ¡A girar!</li>';
     } else {
@@ -220,7 +211,128 @@ function showCollection() {
 
 function showVault() {
     vaultModal.style.display = 'flex';
+    vaultGamePlayedThisSession = false;
+    document.getElementById('vaultAssDollarsCount').textContent = vaultAssDollars;
+
+    const vaultGameContainer = document.getElementById('vaultGameContainer');
+    if (!vaultGamePlayedThisSession) {
+        vaultGameContainer.innerHTML = '<button id="startVaultGameButton">JUGAR</button>';
+        document.getElementById('startVaultGameButton').onclick = startVaultGame;
+    } else {
+        vaultGameContainer.innerHTML = '<p>Ya has jugado el mini-juego en esta sesión de la bóveda. ¡Vuelve a girar en la tragamonedas!</p>';
+    }
+
+    document.getElementById('depositButton').onclick = depositAssDollars;
+    document.getElementById('withdrawButton').onclick = withdrawAssDollars;
 }
+
+function depositAssDollars() {
+    const amountInput = document.getElementById('assDollarsToMove');
+    const amount = parseInt(amountInput.value);
+    const vaultMessage = document.getElementById('vaultMessage');
+
+    if (isNaN(amount) || amount <= 0 || amount > assDollars) {
+        vaultMessage.textContent = '¡Ass Dominator se burla de tus intentos! Ingresa una cantidad válida.';
+        return;
+    }
+
+    assDollars -= amount;
+    vaultAssDollars += amount;
+    updateDisplay();
+    amountInput.value = '';
+    document.getElementById('vaultAssDollarsCount').textContent = vaultAssDollars;
+    vaultMessage.textContent = `¡Has guardado ${amount} AssDólares en la bóveda! ¡Protegidos!`;
+    speak('¡Más culos guardados! ¡Perfecto!');
+}
+
+function withdrawAssDollars() {
+    const amountInput = document.getElementById('assDollarsToMove');
+    const amount = parseInt(amountInput.value);
+    const vaultMessage = document.getElementById('vaultMessage');
+
+    if (isNaN(amount) || amount <= 0 || amount > vaultAssDollars) {
+        vaultMessage.textContent = '¡La bóveda está vacía! ¡No hay nada que retirar!';
+        return;
+    }
+
+    assDollars += amount;
+    vaultAssDollars -= amount;
+    updateDisplay();
+    amountInput.value = '';
+    document.getElementById('vaultAssDollarsCount').textContent = vaultAssDollars;
+    vaultMessage.textContent = `¡Has retirado ${amount} AssDólares de la bóveda! ¡Vuelve a apostar!`;
+    speak('¡Es hora de que esos AssDólares vuelvan a trabajar!');
+}
+
+function startVaultGame() {
+    vaultGameContainer.innerHTML = '';
+
+    const allButts = [
+        buttTypes.find(b => b.rarity === 'common'),
+        buttTypes.find(b => b.rarity === 'common'),
+        buttTypes.find(b => b.rarity === 'common'),
+        buttTypes.find(b => b.rarity === 'legendary')
+    ];
+    allButts.sort(() => Math.random() - 0.5);
+
+    allButts.forEach((butt, index) => {
+        const img = document.createElement('img');
+        img.src = butt.img;
+        img.className = 'vault-game-butt';
+        img.dataset.isLegendary = (butt.rarity === 'legendary');
+        vaultGameContainer.appendChild(img);
+    });
+
+    const vaultMessage = document.getElementById('vaultMessage');
+    vaultMessage.textContent = '¡Ass Dominator oculta el glúteo legendario! ¡Memoriza su posición!';
+    speak('¡Memoriza bien! ¡Si fallas, te burlaré hasta la dominación total!');
+
+    setTimeout(() => {
+        const gameButts = document.querySelectorAll('.vault-game-butt');
+        gameButts.forEach(butt => {
+            butt.src = 'assets/butt_mystery.png';
+            butt.classList.add('vault-game-hidden');
+            butt.onclick = () => {
+                const isLegendary = butt.dataset.isLegendary === 'true';
+                endVaultGame(isLegendary);
+            };
+        });
+        vaultMessage.textContent = '¡Ahora adivina! ¡Haz clic en el glúteo legendario!';
+        speak('¡El momento de la verdad! ¡Elige!');
+    }, 2500);
+}
+
+function endVaultGame(win) {
+    vaultGamePlayedThisSession = true;
+    const vaultMessage = document.getElementById('vaultMessage');
+
+    const gameButts = document.querySelectorAll('.vault-game-butt');
+    gameButts.forEach(butt => {
+        butt.onclick = null;
+        if (butt.dataset.isLegendary === 'true') {
+            butt.src = 'assets/butt_legendary.png';
+            butt.classList.remove('vault-game-hidden');
+        } else {
+            butt.src = 'assets/butt_common.png';
+            butt.classList.remove('vault-game-hidden');
+        }
+    });
+
+    if (win) {
+        assDollars += 250;
+        updateDisplay();
+        vaultMessage.textContent = '¡GANASTE! ¡Ass Dominator te premia con 250 AssDólares!';
+        speak('¡Impresionante! ¡Mis respetos! Por ahora...');
+    } else {
+        vaultMessage.textContent = '¡PERDISTE! ¡Ass Dominator se ríe de tu falta de memoria!';
+        speak('¡Qué patético! ¡Un verdadero dominador lo habría adivinado!');
+    }
+
+    setTimeout(() => {
+        vaultGameContainer.innerHTML = '<p>Ya has jugado el mini-juego en esta sesión de la bóveda. ¡Vuelve a girar en la tragamonedas!</p>';
+    }, 3000);
+}
+
 
 // --- Event Listeners ---
 spinButton.addEventListener('click', spin);
@@ -230,25 +342,24 @@ vaultButton.addEventListener('click', showVault);
 closeButtons.forEach(button => {
     button.addEventListener('click', (event) => {
         event.target.closest('.modal').style.display = 'none';
+        vaultGamePlayedThisSession = false;
     });
 });
 
-// Cerrar modales haciendo clic fuera del contenido
 window.addEventListener('click', (event) => {
     if (event.target == collectionModal) {
         collectionModal.style.display = 'none';
     }
     if (event.target == vaultModal) {
         vaultModal.style.display = 'none';
+        vaultGamePlayedThisSession = false;
     }
 });
-
 
 // --- Inicialización del Juego ---
 window.onload = () => {
     updateDisplay();
     speak(phrases.initial[Math.floor(Math.random() * phrases.initial.length)]);
-    // Precargar imágenes de los glúteos para evitar el parpadeo en el primer giro
     buttTypes.forEach(butt => {
         const img = new Image();
         img.src = butt.img;

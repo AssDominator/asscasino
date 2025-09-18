@@ -238,3 +238,78 @@ h1 {
 #buttCollectionList li strong {
     color: #ADFF2F;
 }
+
+/* Estilos de la Bóveda */
+.vault-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.vault-buttons button {
+    background-color: #ADFF2F;
+    color: #1a1a1a;
+    border: 3px solid #00FFFF;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.vault-buttons button:hover {
+    background-color: #00FFFF;
+    color: #1a1a1a;
+    transform: translateY(-2px);
+}
+
+#assDollarsToMove {
+    width: 80%;
+    padding: 10px;
+    font-size: 1.2em;
+    border-radius: 8px;
+    border: 2px solid #FFD700;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Estilos del Mini-Juego de la Bóveda */
+#vaultGameContainer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.vault-game-butt {
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+    transition: transform 0.3s ease-out;
+}
+
+.vault-game-butt:hover {
+    transform: scale(1.1);
+}
+
+.vault-game-hidden {
+    filter: brightness(0.5);
+}
+
+#startVaultGameButton {
+    background-color: #ADFF2F;
+    color: #1a1a1a;
+    border: 3px solid #00FFFF;
+    padding: 15px 30px;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#startVaultGameButton:hover {
+    background-color: #00FFFF;
+    color: #1a1a1a;
+    transform: translateY(-2px);
+}

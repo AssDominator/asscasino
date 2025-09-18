@@ -16,7 +16,7 @@
         </div>
 
         <div class="stats-display">
-            <p>AssDólares: <span id="assDollars">1000</span></p>
+            <p>AssDólares: <span id="assDollars">10000</span></p>
             <p>Glúteos en posesión: <span id="assCount">0</span></p>
         </div>
 
@@ -29,7 +29,7 @@
         <div class="controls">
             <button id="spinButton">¡GIRAR LA RODAJA DEL CULO!</button>
             <button id="viewCollectionButton">Ver Colección de Glúteos</button>
-            <button id="vaultButton">El Bóveda de los Secretos</button>
+            <button id="vaultButton">La Bóveda de los Secretos</button>
         </div>
 
         <div id="messageDisplay" class="message-display"></div>
@@ -45,9 +45,16 @@
         <div id="vaultModal" class="modal">
             <div class="modal-content">
                 <span class="close-button">&times;</span>
-                <h2>El Bóveda de los Secretos</h2>
-                <p>¡Solo Ass Dominator conoce los verdaderos secretos de estos glúteos!</p>
-                <p>Contenido del Vault: (Aquí podrías poner logros, estadísticas secretas, etc.)</p>
+                <h2>La Bóveda de los Secretos</h2>
+                <p>¡El Ass Dominator te desafía a un juego de memoria! ¡Encuentra el glúteo legendario para ganar AssDólares!</p>
+                <div id="vaultGameContainer"></div>
+                <p id="vaultAssDollarsInfo">AssDólares en la Bóveda: <strong><span id="vaultAssDollarsCount">0</span></strong></p>
+                <input type="number" id="assDollarsToMove" placeholder="Cantidad a guardar/retirar">
+                <div class="vault-buttons">
+                    <button id="depositButton">Guardar</button>
+                    <button id="withdrawButton">Retirar</button>
+                </div>
+                <p id="vaultMessage" class="message-display"></p>
             </div>
         </div>
     </div>
@@ -56,6 +63,7 @@
     <audio id="winSound" src="assets/win-sound.mp3" preload="auto"></audio>
     <audio id="loseSound" src="assets/lose-sound.mp3" preload="auto"></audio>
     <audio id="assDestructionSound" src="assets/ass-destruction.mp3" preload="auto"></audio>
+    <audio id="backgroundMusic" src="assets/musica-fondo.mp3" preload="auto" loop></audio>
 
     <script src="script.js"></script>
 </body>
